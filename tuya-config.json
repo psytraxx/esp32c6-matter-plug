@@ -1,0 +1,185 @@
+{
+    "gw_bi": {
+        "uuid": "a879bcc932aca6d8",
+        "psk_key": "EBUGg4yO4KXlP7qw4tOPZgZBzyI2PxBPWgKTt",
+        "auth_key": "nBpHb7A6WTO34vFqJXdcAcXoxEV63cWg",
+        "ap_ssid": "SmartLife",
+        "ap_passwd": null,
+        "country_code": "CN",
+        "bt_mac": null,
+        "bt_hid": null,
+        "prod_test": false,
+        "fac_pin": "3derx67tpc3xw4wg"
+    },
+    "user_param_key": {
+        "reset_t": 5,
+        "netled1_pin": 8,
+        "rl1_lv": 1,
+        "bt_type": 0,
+        "bt1_pin": 10,
+        "module": "CB2S",
+        "net_trig": 2,
+        "ch_cddpid1": 9,
+        "jv": "1.0.2",
+        "netled1_lv": 0,
+        "netled_reuse": 0,
+        "ffc_select": 0,
+        "nety_led": 1,
+        "ch_num": 1,
+        "total_stat": 2,
+        "rl1_pin": 26,
+        "netn_led": 0,
+        "ch_dpid1": 1,
+        "bt1_lv": 0,
+        "crc": 52
+    },
+    "gw_di": {
+        "abi": 0,
+        "id": "bfe08e5a8aca4aeb57c5cu",
+        "swv": "1.1.17",
+        "bv": "40.00",
+        "pv": "2.2",
+        "lpv": "3.4",
+        "pk": "keyjup78v54myhan",
+        "firmk": "keyjup78v54myhan",
+        "cadv": "1.0.5",
+        "cdv": "1.0.0",
+        "dev_swv": "1.1.17",
+        "s_id": "000003c38z",
+        "dtp": 0,
+        "sync": 0,
+        "attr_num": 1,
+        "mst_tp_0": 100,
+        "mst_ver_0": "1.0.2",
+        "mst_md5_0": "2b28832e7f4bd2a2ed2216ca8b8b0984",
+        "mst_tp_1": 0,
+        "mst_ver_1": null,
+        "mst_md5_1": null,
+        "mst_tp_2": 0,
+        "mst_ver_2": null,
+        "mst_md5_2": null,
+        "mst_tp_3": 0,
+        "mst_ver_3": null,
+        "mst_md5_3": null
+    },
+    "tls_ca_cnt": 0,
+    "timer_arr": {
+        "lastFetchTime": 0,
+        "cnt": 0
+    },
+    "gw_wsm": {
+        "nc_tp": 4,
+        "ssid": "U21hcnRob21l",
+        "passwd": "c29ubmVubGFuZA==",
+        "md": 0,
+        "random": 0,
+        "wfb64": 1,
+        "stat": 2,
+        "token": "DVVtbAsV",
+        "region": "EU",
+        "reg_key": "_Or1",
+        "dns_prio": 0
+    },
+    "wf_start_md": 3,
+    "is_stride": 0,
+    "gw_ai": {
+        "key": "u#On4IHOrmGtjf1|",
+        "lckey": "eauI7!u-h+S{hczB",
+        "h_url": "http://a1-eu.lifeaiot.com/d.json",
+        "h_ip": "18.153.224.52",
+        "hs_url": null,
+        "hs_ip": null,
+        "hs_psk": "https://a3-eu.lifeaiot.com/d.json",
+        "hs_psk_ip": "3.67.116.46",
+        "mqs_url": null,
+        "mqs_ip": null,
+        "mq_url": "m1-eu.lifeaiot.com:1883",
+        "mq_ip": "3.76.16.47",
+        "ai_sp": null,
+        "ai_sp_ip": null,
+        "mq_psk": "m3-eu.lifeaiot.com:8883",
+        "mq_psk_ip": "3.76.16.47",
+        "lp_url": "baal.tuyaeu.com:443",
+        "lp_ip": "18.193.97.90",
+        "time_z": "+01:00",
+        "s_time_z": "[[1743296400,1761440400],[1774746000,1792890000]]",
+        "wx_app_id": null,
+        "wx_uuid": null,
+        "dy_tls_m": 2,
+        "cloud_cap": 1025,
+        "psk21_key": null
+    },
+    "000003c38z": [
+        {
+            "mode": "rw",
+            "property": {
+                "type": "bool"
+            },
+            "id": 1,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "min": 0,
+                "max": 86400,
+                "scale": 0,
+                "step": 1,
+                "type": "value"
+            },
+            "id": 9,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "range": [
+                    "off",
+                    "on",
+                    "memory"
+                ],
+                "type": "enum"
+            },
+            "id": 38,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "type": "bool"
+            },
+            "id": 41,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "type": "string",
+                "maxlen": 255
+            },
+            "id": 42,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "type": "string",
+                "maxlen": 255
+            },
+            "id": 43,
+            "type": "obj"
+        },
+        {
+            "mode": "rw",
+            "property": {
+                "type": "string",
+                "maxlen": 255
+            },
+            "id": 44,
+            "type": "obj"
+        }
+    ],
+    "ble_beaconkey": "1ECBD3882CDD81FB884A66C019AF614F",
+    "em_sys_env": "bk7231n",
+    "mf_test_close": true
+}

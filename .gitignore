@@ -1,0 +1,12 @@
+managed_components/
+dependencies.lock
+sdkconfig
+build/
+*.bin
+*.elf
+*.map
+.DS_Store
+*.old
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.cache/
