@@ -129,8 +129,8 @@ void button_init(gpio_num_t pin, void (*on_long_press)(void), void (*on_short_pr
     }
 
     // gpio_install_isr_service returns INVALID_STATE if already installed
-    // (e.g. by bl0937.cpp or an earlier button_init call); both outcomes are
-    // fine, so don't ESP_ERROR_CHECK it.
+    // (e.g. by an earlier button_init call); both outcomes are fine, so
+    // don't ESP_ERROR_CHECK it.
     gpio_install_isr_service(0);
     gpio_isr_handler_add(pin, button_isr, btn);
 

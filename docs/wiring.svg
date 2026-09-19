@@ -7,8 +7,8 @@
     <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#1e8449"/>
     </marker>
-    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#2471a3"/>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7d3c98"/>
     </marker>
   </defs>
 
@@ -29,7 +29,7 @@
   <!-- Row template: y-start 140, row height 42. Left label column right-edge at x=220. -->
   <!-- Row 1: 3V3 -->
   <g>
-    <text x="220" y="150" font-size="13" fill="#1a1a1a" text-anchor="end">AMS1117 3.3&#160;V</text>
+    <text x="220" y="150" font-size="13" fill="#1a1a1a" text-anchor="end">3.3&#160;V rail</text>
     <line x1="230" y1="146" x2="410" y2="146" stroke="#c0392b" stroke-width="1.6"/>
     <rect x="540" y="132" width="100" height="26" rx="4" fill="#ffffff" stroke="#c0392b" stroke-width="1.4"/>
     <text x="590" y="149" font-size="12.5" fill="#8e2b1f" text-anchor="middle" font-weight="600">3V3</text>
@@ -39,7 +39,7 @@
 
   <!-- Row 2: relay -->
   <g>
-    <text x="220" y="192" font-size="13" fill="#1a1a1a" text-anchor="end">Relay drive</text>
+    <text x="220" y="192" font-size="13" fill="#1a1a1a" text-anchor="end">Relay drive (active-high)</text>
     <line x1="230" y1="188" x2="410" y2="188" stroke="#c0392b" stroke-width="1.6" marker-start="url(#arrowRed)"/>
     <rect x="540" y="174" width="100" height="26" rx="4" fill="#ffffff" stroke="#c0392b" stroke-width="1.4"/>
     <text x="590" y="191" font-size="12.5" fill="#8e2b1f" text-anchor="middle" font-weight="600">P26</text>
@@ -59,7 +59,7 @@
 
   <!-- Row 4: LED (WiFi LED / network LED) -->
   <g>
-    <text x="220" y="276" font-size="13" fill="#1a1a1a" text-anchor="end">WiFi LED (network state)</text>
+    <text x="220" y="276" font-size="13" fill="#1a1a1a" text-anchor="end">WiFi LED (active-low, network state)</text>
     <line x1="230" y1="272" x2="410" y2="272" stroke="#1e8449" stroke-width="1.6" marker-start="url(#arrowGreen)"/>
     <rect x="540" y="258" width="100" height="26" rx="4" fill="#ffffff" stroke="#1e8449" stroke-width="1.4"/>
     <text x="590" y="275" font-size="12.5" fill="#1e8449" text-anchor="middle" font-weight="600">P8</text>
@@ -69,7 +69,7 @@
 
   <!-- Row 5: button (RX1) -->
   <g>
-    <text x="220" y="318" font-size="13" fill="#1a1a1a" text-anchor="end">tactile button</text>
+    <text x="220" y="318" font-size="13" fill="#1a1a1a" text-anchor="end">tactile button (active-low)</text>
     <line x1="230" y1="314" x2="410" y2="314" stroke="#1e8449" stroke-width="1.6"/>
     <rect x="540" y="300" width="100" height="26" rx="4" fill="#ffffff" stroke="#1e8449" stroke-width="1.4"/>
     <text x="590" y="317" font-size="12.5" fill="#1e8449" text-anchor="middle" font-weight="600">RX1 &#183; P10</text>
@@ -77,71 +77,65 @@
     <text x="870" y="318" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D3 &#183; GPIO21</text>
   </g>
 
-  <!-- Row 6: SEL -->
-  <g>
-    <text x="220" y="360" font-size="13" fill="#1a1a1a" text-anchor="end">BL0937 SEL</text>
-    <line x1="230" y1="356" x2="410" y2="356" stroke="#2471a3" stroke-width="1.6" marker-start="url(#arrowBlue)"/>
-    <rect x="540" y="342" width="100" height="26" rx="4" fill="#ffffff" stroke="#2471a3" stroke-width="1.4"/>
-    <text x="590" y="359" font-size="12.5" fill="#1a4f73" text-anchor="middle" font-weight="600">P24</text>
-    <line x1="640" y1="356" x2="810" y2="356" stroke="#2471a3" stroke-width="1.6"/>
-    <text x="870" y="360" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D2 &#183; GPIO2</text>
+  <!-- Row 6: TX1 (not connected) -->
+  <g opacity="0.55">
+    <text x="220" y="360" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">not connected</text>
+    <line x1="230" y1="356" x2="410" y2="356" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <rect x="540" y="342" width="100" height="26" rx="4" fill="#f4f5f6" stroke="#aab0b6" stroke-width="1.2"/>
+    <text x="590" y="359" font-size="12.5" fill="#8a8f94" text-anchor="middle">TX1</text>
+    <line x1="640" y1="356" x2="810" y2="356" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <text x="870" y="360" font-size="13" fill="#8a8f94" text-anchor="middle" font-style="italic">&#8212;</text>
   </g>
 
-  <!-- Row 7: TX1 (not connected) -->
+  <!-- Row 7: CEN (not connected) -->
   <g opacity="0.55">
-    <text x="220" y="402" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">not connected</text>
+    <text x="220" y="402" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">module reset (unused)</text>
     <line x1="230" y1="398" x2="410" y2="398" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
     <rect x="540" y="384" width="100" height="26" rx="4" fill="#f4f5f6" stroke="#aab0b6" stroke-width="1.2"/>
-    <text x="590" y="401" font-size="12.5" fill="#8a8f94" text-anchor="middle">TX1</text>
+    <text x="590" y="401" font-size="12.5" fill="#8a8f94" text-anchor="middle">CEN</text>
     <line x1="640" y1="398" x2="810" y2="398" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
     <text x="870" y="402" font-size="13" fill="#8a8f94" text-anchor="middle" font-style="italic">&#8212;</text>
   </g>
 
-  <!-- Row 8: CF -->
-  <g>
-    <text x="220" y="444" font-size="13" fill="#1a1a1a" text-anchor="end">BL0937 CF (active power)</text>
-    <line x1="230" y1="440" x2="410" y2="440" stroke="#2471a3" stroke-width="1.6"/>
-    <rect x="540" y="426" width="100" height="26" rx="4" fill="#ffffff" stroke="#2471a3" stroke-width="1.4"/>
-    <text x="590" y="443" font-size="12.5" fill="#1a4f73" text-anchor="middle" font-weight="600">P7</text>
-    <line x1="640" y1="440" x2="810" y2="440" stroke="#2471a3" stroke-width="1.6" marker-end="url(#arrowBlue)"/>
-    <text x="870" y="444" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D0 &#183; GPIO0</text>
-  </g>
-
-  <!-- Row 9: CEN (not connected) -->
+  <!-- Row 8: ADC (not connected) -->
   <g opacity="0.55">
-    <text x="220" y="486" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">module reset (unused)</text>
-    <line x1="230" y1="482" x2="410" y2="482" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <rect x="540" y="468" width="100" height="26" rx="4" fill="#f4f5f6" stroke="#aab0b6" stroke-width="1.2"/>
-    <text x="590" y="485" font-size="12.5" fill="#8a8f94" text-anchor="middle">CEN</text>
-    <line x1="640" y1="482" x2="810" y2="482" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <text x="870" y="486" font-size="13" fill="#8a8f94" text-anchor="middle" font-style="italic">&#8212;</text>
+    <text x="220" y="444" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">not connected</text>
+    <line x1="230" y1="440" x2="410" y2="440" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <rect x="540" y="426" width="100" height="26" rx="4" fill="#f4f5f6" stroke="#aab0b6" stroke-width="1.2"/>
+    <text x="590" y="443" font-size="12.5" fill="#8a8f94" text-anchor="middle">ADC</text>
+    <line x1="640" y1="440" x2="810" y2="440" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <text x="870" y="444" font-size="13" fill="#8a8f94" text-anchor="middle" font-style="italic">&#8212;</text>
   </g>
 
-  <!-- Row 10: CF1 -->
+  <!-- Section divider: radar is not on the CB2S footprint at all -->
+  <line x1="30" y1="466" x2="1050" y2="466" stroke="#ddd" stroke-width="1"/>
+  <text x="540" y="486" font-size="12" fill="#7d3c98" text-anchor="middle" font-style="italic">LD2410 radar &#8212; standalone module, not part of the CB2S footprint</text>
+
+  <!-- Row 9: radar TX -> XIAO RX -->
   <g>
-    <text x="220" y="528" font-size="13" fill="#1a1a1a" text-anchor="end">BL0937 CF1 (V/I, muxed)</text>
-    <line x1="230" y1="524" x2="410" y2="524" stroke="#2471a3" stroke-width="1.6"/>
-    <rect x="540" y="510" width="100" height="26" rx="4" fill="#ffffff" stroke="#2471a3" stroke-width="1.4"/>
-    <text x="590" y="527" font-size="12.5" fill="#1a4f73" text-anchor="middle" font-weight="600">P6</text>
-    <line x1="640" y1="524" x2="810" y2="524" stroke="#2471a3" stroke-width="1.6" marker-end="url(#arrowBlue)"/>
-    <text x="870" y="528" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D1 &#183; GPIO1</text>
+    <text x="220" y="528" font-size="13" fill="#1a1a1a" text-anchor="end">LD2410 pin 2 (TX)</text>
+    <line x1="230" y1="524" x2="410" y2="524" stroke="#7d3c98" stroke-width="1.6"/>
+    <rect x="540" y="510" width="100" height="26" rx="4" fill="#ffffff" stroke="#7d3c98" stroke-width="1.4" stroke-dasharray="4,2"/>
+    <text x="590" y="527" font-size="12.5" fill="#5b2c6f" text-anchor="middle" font-weight="600">n/a</text>
+    <line x1="640" y1="524" x2="810" y2="524" stroke="#7d3c98" stroke-width="1.6" marker-end="url(#arrowPurple)"/>
+    <text x="870" y="528" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D1 &#183; GPIO1 (RX)</text>
   </g>
 
-  <!-- Row 11: ADC (not connected) -->
-  <g opacity="0.55">
-    <text x="220" y="570" font-size="13" fill="#8a8f94" text-anchor="end" font-style="italic">not connected</text>
-    <line x1="230" y1="566" x2="410" y2="566" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <rect x="540" y="552" width="100" height="26" rx="4" fill="#f4f5f6" stroke="#aab0b6" stroke-width="1.2"/>
-    <text x="590" y="569" font-size="12.5" fill="#8a8f94" text-anchor="middle">ADC</text>
-    <line x1="640" y1="566" x2="810" y2="566" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
-    <text x="870" y="570" font-size="13" fill="#8a8f94" text-anchor="middle" font-style="italic">&#8212;</text>
+  <!-- Row 10: radar RX <- XIAO TX -->
+  <g>
+    <text x="220" y="570" font-size="13" fill="#1a1a1a" text-anchor="end">LD2410 pin 3 (RX)</text>
+    <line x1="230" y1="566" x2="410" y2="566" stroke="#7d3c98" stroke-width="1.6" marker-start="url(#arrowPurple)"/>
+    <rect x="540" y="552" width="100" height="26" rx="4" fill="#ffffff" stroke="#7d3c98" stroke-width="1.4" stroke-dasharray="4,2"/>
+    <text x="590" y="569" font-size="12.5" fill="#5b2c6f" text-anchor="middle" font-weight="600">n/a</text>
+    <line x1="640" y1="566" x2="810" y2="566" stroke="#7d3c98" stroke-width="1.6"/>
+    <text x="870" y="570" font-size="13" fill="#1a1a1a" text-anchor="middle" font-weight="600">D2 &#183; GPIO2 (TX)</text>
   </g>
 
   <!-- Legend -->
   <g font-size="12" fill="#555">
-    <line x1="30" y1="600" x2="55" y2="600" stroke="#2471a3" stroke-width="1.6" marker-end="url(#arrowBlue)"/>
+    <line x1="30" y1="600" x2="55" y2="600" stroke="#7d3c98" stroke-width="1.6" marker-end="url(#arrowPurple)"/>
     <text x="62" y="604">into XIAO (it reads this)</text>
-    <line x1="265" y1="600" x2="290" y2="600" stroke="#2471a3" stroke-width="1.6" marker-start="url(#arrowBlue)"/>
+    <line x1="265" y1="600" x2="290" y2="600" stroke="#7d3c98" stroke-width="1.6" marker-start="url(#arrowPurple)"/>
     <text x="297" y="604">out of XIAO (it drives this)</text>
     <line x1="545" y1="600" x2="570" y2="600" stroke="#aab0b6" stroke-width="1.2" stroke-dasharray="3,3"/>
     <text x="577" y="604">not connected</text>

@@ -10,7 +10,7 @@
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=/home/eric/workspace/openbeken-matter/build"
+    "--compile-commands-dir=/home/eric/workspace/esp32c6-matter-plug/build"
   ],
   "idf.flashType": "UART",
   "idf.port": "/dev/ttyACM0"

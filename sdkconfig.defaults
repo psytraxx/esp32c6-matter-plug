@@ -1,6 +1,7 @@
 # sdkconfig defaults for the Seeed XIAO ESP32-C6 (ESP32-C6, 4 MB flash,
-# no PSRAM) replacing the CB2S module in a Tuya BL0937 energy-metering plug.
-# Lifted from the sibling esp32c6-radar-demo-matter project's sdkconfig.defaults
+# no PSRAM) replacing the CB2S module in a Tuya smart plug. This is a plain
+# switch plus an LD2410 occupancy radar — no energy metering.
+# Lifted from the sibling esp-demo-matter project's sdkconfig.defaults
 # (same target, same Thread-only transport) with device identity and cluster
 # selection changed for this plug.
 
@@ -19,9 +20,11 @@ CONFIG_MBEDTLS_HKDF_C=y
 CONFIG_COMPILER_OPTIMIZATION_SIZE=y
 CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_DISABLE=n
 
-# CPU frequency: 80 MHz saves power (Matter stack is not CPU-bound).
-CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_80=y
-CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=80
+# CPU frequency: 160 MHz, the ESP32-C6's maximum (the H2 sibling caps at
+# 96 MHz; this is a different SoC and there is headroom to spare for the
+# radar's UART bridge task alongside the Matter/Thread stack).
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_160=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=160
 
 # BLE (commissioning only)
 CONFIG_BT_ENABLED=y
@@ -81,15 +84,16 @@ CONFIG_MBEDTLS_SSL_PROTO_DTLS=y
 # which looks to the Border Router like the device simply vanished. The giveaway
 # is "phy: phy wait timeout" in the log shortly after "BLE deinit successful".
 CONFIG_PM_ENABLE=n
-CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_160=y
 
 CONFIG_ENABLE_EXTENDED_DISCOVERY=y
 
 # Matter device identity
 CONFIG_DEVICE_VENDOR_ID=0xFFF2
-CONFIG_DEVICE_PRODUCT_ID=0x8004
+# Distinct from both siblings' PIDs (0x8004 = H2 metered plug, 0x8003 = radar
+# demo) since the cluster set differs from both.
+CONFIG_DEVICE_PRODUCT_ID=0x8005
 CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION=1
-CONFIG_USE_TEST_SERIAL_NUMBER="CB2SPLUG-0001"
+CONFIG_USE_TEST_SERIAL_NUMBER="CB2SSWITCH-0001"
 # Per-build pairing code (discriminator + passcode + spake2p verifier) — edit
 # main/chip_project_config.h before flashing to give each device its own code.
 # Deliberately different from both sibling projects' discriminators so all
@@ -97,7 +101,8 @@ CONFIG_USE_TEST_SERIAL_NUMBER="CB2SPLUG-0001"
 CONFIG_CHIP_PROJECT_CONFIG="main/chip_project_config.h"
 CONFIG_ENABLE_COMMISSIONABLE_DEVICE_TYPE=y
 # Device type 0x010A = On/Off Plug-in Unit (root endpoint placeholder; the
-# real device type lives on the dynamic endpoint created in matter_setup.cpp).
+# real device types live on the two dynamic endpoints created in
+# matter_setup.cpp -- on_off_plug_in_unit and occupancy_sensor).
 CONFIG_DEVICE_TYPE=266
 CONFIG_ESP_MATTER_MAX_DYNAMIC_ENDPOINT_COUNT=8
 
@@ -109,3 +114,6 @@ CONFIG_ESP_INSIGHTS_ENABLED=n
 
 # No display — pairing code is printed to the serial console only (see
 # run_commissioning() in app_main.cpp).
+
+# LD2410 presence radar: the ld2410c component has no Kconfig, so its UART
+# port, pins and baud rate are set in board_pins.h / app_config.h instead.

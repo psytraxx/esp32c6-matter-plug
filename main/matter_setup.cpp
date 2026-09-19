@@ -12,7 +12,6 @@
 #include "freertos/portmacro.h"
 
 #include "app_config.h"
-#include "power_measurement.h"
 #include "relay.h"
 #include "status_led.h"
 
@@ -39,6 +38,15 @@
     }
 #endif // CONFIG_OPENTHREAD_ENABLED
 
+// Reads for a registered cluster are served by the cluster object, not
+// esp_matter's attribute store, so Occupancy has to be set through the cluster's
+// own SetOccupancy(). Upstream keeps the instance file-local; this accessor is a
+// local patch in
+// managed_components/espressif__esp_matter/components/esp_matter/data_model_provider/clusters/occupancy_sensing/integration.cpp
+#include <app/clusters/occupancy-sensor-server/OccupancySensingCluster.h>
+chip::app::Clusters::OccupancySensingCluster *
+esp_matter_get_occupancy_cluster(chip::EndpointId endpointId);
+
 // Matter/CHIP stack headers
 #include <app/server/Server.h>
 #include <app/server/CommissioningWindowManager.h>
@@ -56,8 +64,9 @@ static constexpr uint16_t COMMISSIONING_WINDOW_TIMEOUT_S = 300;
 // Sentinel for "endpoint not yet created" — 0xFFFF is the Matter wildcard/invalid ID.
 static constexpr uint16_t MATTER_EP_INVALID = 0xFFFFu;
 
-// Endpoint ID, populated on create
-static uint16_t s_ep_plug = MATTER_EP_INVALID; // on_off_plug_in_unit (relay + BL0937 metering)
+// Endpoint IDs, populated on create
+static uint16_t s_ep_plug      = MATTER_EP_INVALID; // on_off_plug_in_unit (relay)
+static uint16_t s_ep_occupancy = MATTER_EP_INVALID; // occupancy_sensor (LD2410 radar)
 
 static EventGroupHandle_t s_boot_events      = NULL;
 static EventBits_t        s_commissioned_bit = 0;
@@ -163,11 +172,10 @@ static void matter_event_cb(const chip::DeviceLayer::ChipDeviceEvent *event, int
 // ── OnOff <-> relay bridge ───────────────────────────────────────────────────
 //
 // Ported from uascent-matter/src/zcl_callbacks.cpp: attribute writes (from a
-// controller, or from matter_button_toggle()/AppUpdateOnOffCluster() after a
-// button press or over-power trip) drive RelaySet() through attr_update_cb
-// below; matter_update_onoff() is the reverse direction, pushing the relay's
-// actual state back into the cluster so a subscriber sees it regardless of
-// what caused the change.
+// controller, or from matter_button_toggle() after a button press) drive
+// RelaySet() through attr_update_cb below; matter_update_onoff() is the
+// reverse direction, pushing the relay's actual state back into the cluster
+// so a subscriber sees it regardless of what caused the change.
 
 static void apply_onoff(bool on)
 {
@@ -225,38 +233,33 @@ static esp_err_t create_endpoints(esp_matter::node_t *node)
     }
     s_ep_plug = endpoint::get_id(ep);
 
-    // ElectricalPowerMeasurement is wired entirely through the CHIP SDK's own
-    // cluster API (power_measurement.cpp's Instance/Delegate) -- its Init()
-    // self-registers directly with the data-model provider registry, with no
-    // esp_matter::cluster::electrical_power_measurement helper involved at
-    // all. Deferred until after esp_matter::start() below: Instance::Init()
-    // touches the attribute/reporting engine, which is only valid once the
-    // data model has loaded.
-    //
-    // ElectricalEnergyMeasurement is different: esp_matter needs its own
-    // cluster_t on this endpoint (electrical_energy_measurement::create()
-    // below) so ESPMatterElectricalEnergyMeasurementClusterServerInitCallback
-    // (registered as that cluster's init callback, fired automatically once
-    // the data model loads) can find it via cluster::get() and construct the
-    // real ElectricalEnergyMeasurementCluster. Feature bits mirror what
-    // power_measurement.cpp used to pass to the now-unused
-    // ElectricalEnergyMeasurementAttrAccess constructor: imported + cumulative
-    // energy only -- this endpoint neither exports nor reports periodically,
-    // and declaring those features would make CumulativeEnergyExported /
-    // PeriodicEnergyImported mandatory attributes this endpoint doesn't have.
     {
-        using namespace chip::app::Clusters::ElectricalEnergyMeasurement;
-        cluster::electrical_energy_measurement::config_t eem_cfg = {};
-        eem_cfg.feature_flags = cluster::electrical_energy_measurement::feature::imported_energy::get_id() |
-                                 cluster::electrical_energy_measurement::feature::cumulative_energy::get_id();
-        if (!cluster::electrical_energy_measurement::create(ep, &eem_cfg, CLUSTER_FLAG_SERVER))
+        using namespace chip::app::Clusters;
+
+        // occupancy_sensor_type[_bitmap] are the legacy (pre-1.4) attributes,
+        // whose enum has no radar value — kPir is the closest and what Home
+        // Assistant expects for an occupancy binary_sensor. feature_flags is
+        // the newer (Matter 1.4) Feature bitmap, which does have kRadar; the
+        // cluster's create() hard-asserts if feature_flags carries none of
+        // its recognised bits, so this is not optional.
+        endpoint::occupancy_sensor::config_t cfg = {};
+        cfg.occupancy_sensing.occupancy_sensor_type =
+            chip::to_underlying(OccupancySensing::OccupancySensorTypeEnum::kPir);
+        cfg.occupancy_sensing.occupancy_sensor_type_bitmap =
+            chip::to_underlying(OccupancySensing::OccupancySensorTypeBitmap::kPir);
+        cfg.occupancy_sensing.feature_flags =
+            chip::to_underlying(OccupancySensing::Feature::kRadar);
+
+        endpoint_t *ep = endpoint::occupancy_sensor::create(node, &cfg, ENDPOINT_FLAG_NONE, NULL);
+        if (!ep)
         {
-            ESP_LOGE(TAG, "electrical_energy_measurement cluster create failed");
+            ESP_LOGE(TAG, "occupancy_sensor create failed");
             return ESP_FAIL;
         }
+        s_ep_occupancy = endpoint::get_id(ep);
     }
 
-    ESP_LOGI(TAG, "Endpoint: plug=%u", s_ep_plug);
+    ESP_LOGI(TAG, "Endpoints: plug=%u occupancy=%u", s_ep_plug, s_ep_occupancy);
     return ESP_OK;
 }
 
@@ -300,24 +303,6 @@ extern "C" void matter_setup(EventGroupHandle_t boot_events,
 
     ESP_ERROR_CHECK(esp_matter::start(matter_event_cb));
     ESP_LOGI(TAG, "Matter stack started");
-
-    // EPM/EEM init: only valid once the data model has loaded, i.e. after
-    // esp_matter::start(). See uascent-matter/src/app_task.cpp's
-    // mPostServerInitClbk comment for the same ordering requirement on Zephyr.
-    //
-    // Instance::Init() below calls into CHIP's data-model provider
-    // (RegisterAttributeChangeListener et al.), which asserts the CHIP stack
-    // lock is held by the caller (Provider.cpp's
-    // assertChipStackLockedByCurrentThread()). Unlike esp_matter::attribute::
-    // update()/get_val() (which take esp_matter's own lock::ScopedChipStackLock
-    // internally), this raw CHIP SDK call does not -- app_main's task must take
-    // the lock itself, or the Matter/CHIP main-loop task racing on the same
-    // provider trips the "unsafe/racy" abort seen here.
-    {
-        chip::DeviceLayer::StackLock lock;
-        if (PowerMeasurementInit(s_ep_plug) != CHIP_NO_ERROR)
-            ESP_LOGE(TAG, "PowerMeasurementInit failed — metering will not report");
-    }
 
     // esp_matter restores persisted attribute values from NVS into its
     // internal store on start(), but that restore does not go through
@@ -409,4 +394,51 @@ extern "C" void matter_factory_reset(void)
 {
     ESP_LOGW(TAG, "Factory reset requested");
     esp_matter::factory_reset();
+}
+
+extern "C" void matter_report_occupancy(bool occupied)
+{
+    using namespace esp_matter;
+    using namespace chip::app::Clusters;
+
+    if (s_ep_occupancy == MATTER_EP_INVALID)
+        return;
+
+    // The data model provider serves reads for a registered cluster from the
+    // cluster object itself (esp_matter_data_model_provider.cpp:324 —
+    // "if (auto *cluster = mRegistry.Get(request.path)) return
+    // cluster->ReadAttribute(...)"), so Occupancy lives in
+    // OccupancySensingCluster::mOccupancy. esp_matter's attribute::update()
+    // writes a separate store that is never read for this cluster, so it
+    // silently no-ops while returning ESP_OK — verified by a read-back and by a
+    // live read of 2/1030/0 from the controller, both showing 0.
+    //
+    // SetOccupancy() is the cluster's real setter and raises the report itself
+    // via NotifyAttributeChanged(). The accessor is a local patch in
+    // managed_components/.../occupancy_sensing/integration.cpp (see the note
+    // there) because upstream keeps the instance file-local.
+    //
+    // Scheduled onto the Matter thread: SetOccupancy() touches cluster state and
+    // generates a report, so it must not run on the radar task.
+    const uint16_t ep = s_ep_occupancy;
+
+    chip::DeviceLayer::SystemLayer().ScheduleLambda([ep, occupied]() {
+        auto *cluster = esp_matter_get_occupancy_cluster(ep);
+        if (!cluster)
+        {
+            ESP_LOGE(TAG, "OccupancySensing cluster not registered on ep %u", ep);
+            return;
+        }
+
+        cluster->SetOccupancy(occupied);
+
+        // SetOccupancy() defers the clear when the cluster's HoldTime is active,
+        // so a mismatch here is expected on the way to unoccupied, not an error.
+        const bool now = cluster->IsOccupied();
+        if (now != occupied)
+            ESP_LOGI(TAG, "Occupancy set %d, cluster still %d (HoldTime deferring)",
+                     (int)occupied, (int)now);
+        else
+            ESP_LOGI(TAG, "Occupancy reported: %s", occupied ? "occupied" : "clear");
+    });
 }

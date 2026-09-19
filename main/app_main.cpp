@@ -1,12 +1,9 @@
-#include "app_main.h"
-
 #include <inttypes.h>
 
 #include "esp_log.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/timers.h"
 #include "freertos/event_groups.h"
 
 #include "app_config.h"
@@ -15,7 +12,7 @@
 #include "board_pins.h"
 #include "status_led.h"
 #include "relay.h"
-#include "bl0937.h"
+#include "ld2410_bridge.h"
 
 static const char *TAG = "app_main";
 
@@ -24,7 +21,6 @@ static const char *TAG = "app_main";
 #define BOOT_BIT_SERVER_READY  (1 << 1)
 
 static EventGroupHandle_t g_boot_events = NULL;
-static TimerHandle_t      g_meter_poll_timer = NULL;
 
 static void app_init();
 static bool run_commissioning();
@@ -56,11 +52,14 @@ static void on_boot_button_long_press(void)
     matter_factory_reset();
 }
 
-// ── Meter poll timer (runs in the FreeRTOS timer service task) ─────────────
+// ── Radar callback (runs in the radar bridge task context) ─────────────────
 
-static void meter_poll_timer_cb(TimerHandle_t)
+static void on_radar_presence(bool occupied)
 {
-    MeterPoll();
+    // Report-only: the radar does not touch the relay. Coupling presence to
+    // the load belongs in a controller automation (e.g. Home Assistant), not
+    // in this firmware.
+    matter_report_occupancy(occupied);
 }
 
 // Routes the XIAO's radio to its onboard ceramic antenna rather than the
@@ -108,15 +107,12 @@ static void app_init()
     // trigger for when the plug enclosure isn't open (see PIN_BOOT_BUTTON).
     button_init(PIN_BOOT_BUTTON, on_boot_button_long_press, NULL);
 
-    // BL0937 energy meter. Poll rate is part of the calibration -- see
-    // METER_POLL_INTERVAL_MS in app_config.h.
-    MeterInit();
-    g_meter_poll_timer = xTimerCreate("meter_poll", pdMS_TO_TICKS(METER_POLL_INTERVAL_MS),
-                                       pdTRUE, NULL, meter_poll_timer_cb);
-    if (g_meter_poll_timer)
-        xTimerStart(g_meter_poll_timer, 0);
-    else
-        ESP_LOGE(TAG, "Failed to create meter poll timer — metering disabled");
+    // LD2410 presence radar — reports occupancy to Matter; does not touch the
+    // relay. Started after matter_setup() so the occupancy endpoint exists
+    // before any presence edge can arrive. A missing or unresponsive sensor
+    // is non-fatal — the relay and commissioning carry on regardless.
+    if (radar_bridge_init(on_radar_presence) != ESP_OK)
+        ESP_LOGW(TAG, "Radar task could not be started — occupancy reporting disabled");
 }
 
 // Run the commissioning flow when the device is not yet paired. Blocks until
@@ -158,18 +154,11 @@ static bool run_commissioning()
     return true;
 }
 
-// ── Exposed to bl0937.cpp for the over-power trip (see app_main.h) ─────────
-
-extern "C" void AppUpdateOnOffCluster(void)
-{
-    matter_update_onoff();
-}
-
 extern "C" void app_main(void)
 {
     esp_log_level_set("BLE_INIT", ESP_LOG_WARN);
 
-    ESP_LOGI(TAG, "=== CB2S power plug (XIAO ESP32-C6) boot ===");
+    ESP_LOGI(TAG, "=== CB2S switch + LD2410 occupancy (XIAO ESP32-C6) boot ===");
 
     app_init();
 
@@ -186,5 +175,5 @@ extern "C" void app_main(void)
     // on the onboard LED, handing it back to relay state.
     status_led_set(STATUS_LED_OK);
 
-    ESP_LOGI(TAG, "Ready — button toggles the relay, metering reports over Matter");
+    ESP_LOGI(TAG, "Ready — button toggles the relay, radar reports occupancy over Matter");
 }

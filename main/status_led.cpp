@@ -21,8 +21,8 @@ bool sRelayOn;
 
 void SetLevel(bool on)
 {
-    // Polarity UNVERIFIED for this plug's LED — see status_led.h.
-    gpio_set_level(PIN_LED, on ? 1 : 0);
+    // Active-low (tuya-config.json netled1_lv:0) — see status_led.h.
+    gpio_set_level(PIN_LED, on ? 0 : 1);
 }
 
 // Active-low: the XIAO's user LED sinks through the pin, so 0 lights it.

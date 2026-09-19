@@ -9,8 +9,9 @@
 // in sdkconfig.defaults.
 //
 // Discriminator/passcode deliberately differ from both sibling projects
-// (esp32c6-radar-demo-matter uses 0x820/20250816) so all three can be
-// commissioned onto the same fabric at once.
+// (esp32h2-matter-plug uses 0x822/29312364, esp-demo-matter uses
+// 0x820/20250816) so all three can be commissioned onto the same fabric at
+// once.
 //
 // To give another device its own pairing code, change BOTH values below:
 //   1. Pick a new discriminator (any value 0x000–0xFFF; must differ between
@@ -22,14 +23,14 @@
 //      commissioning silently.
 // ─────────────────────────────────────────────────────────────────────────────
 
-#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0x822
+#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0x824
 
-#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_PIN_CODE 29312364
+#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_PIN_CODE 31415926
 
-// Generated with: python3 tools/spake2p_verifier.py 29312364
+// Generated with: python3 tools/spake2p_verifier.py 31415926
 #define CHIP_DEVICE_CONFIG_USE_TEST_SPAKE2P_VERIFIER                        \
-    "0HGrh3Zl3Hqo7xjTalRvPf1xx3Q7/jPD/Yqmus0nTYMEW8Vhui1Ni6TwaB5empEA07Taf+" \
-    "7cU79LPxyryUuYYrq/8VZBys3sxZvJC95QLlPTTPxNgZjVBoGdPrzhIxkXzA=="
+    "03btfvdw0rKPnwYFNfiaJGso79yvuC9tDnBRSWQRUXcEt62rAi8nSjQKZKo+7Tle6CxP0gq" \
+    "JLnRBPprTBlPHp9sYzZkwvNrHvVVt15ujGOCAkUOm9XDLEZg8F3ausZ6iXQ=="
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Basic Information cluster identity, shown by controllers (e.g. Home
@@ -49,7 +50,7 @@
 // unconditionally and after this file is included — a #define here would collide
 // with that and is a hard error under -Werror.
 #define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "XIAO ESP32-C6 (CB2S retrofit)"
-#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "CB2S Power Plug"
+#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "CB2S Switch"
 
 // Firmware version string is deliberately NOT overridden: the SDK default is
 // the git describe of the build, which is exactly what we want to see against

@@ -12,9 +12,9 @@
 // physically click on USB-only power (see relay.h), so this LED is the only
 // feedback that a controller toggle actually landed.
 //
-// PIN_LED polarity is UNVERIFIED — confirm on the bench (README's Verification
-// section) before relying on "off" meaning what you expect. PIN_ONBOARD_LED is
-// driven active-low, which is the usual wiring for the XIAO's user LED.
+// PIN_LED is active-low (tuya-config.json netled1_lv:0 — the stock firmware's
+// own dumped config, not a bench guess). PIN_ONBOARD_LED is also driven
+// active-low, which is the usual wiring for the XIAO's user LED.
 
 #include <stdbool.h>
 

@@ -15,11 +15,10 @@
 extern "C" {
 #endif
 
-// Initialise the Matter On/Off Plug-in Unit endpoint (with
-// ElectricalPowerMeasurement + ElectricalEnergyMeasurement), register the
-// commissioning event callback, and start the Matter stack. boot_events/
-// commissioned_bit are used to signal MATTER_COMMISSIONING_COMPLETE and
-// server_ready_bit for kServerReady.
+// Initialise the Matter On/Off Plug-in Unit endpoint and the OccupancySensing
+// endpoint (LD2410 radar), register the commissioning event callback, and
+// start the Matter stack. boot_events/commissioned_bit are used to signal
+// MATTER_COMMISSIONING_COMPLETE and server_ready_bit for kServerReady.
 void matter_setup(EventGroupHandle_t boot_events,
                    EventBits_t commissioned_bit,
                    EventBits_t server_ready_bit);
@@ -28,8 +27,7 @@ void matter_setup(EventGroupHandle_t boot_events,
 bool matter_is_commissioned(void);
 
 // Push RelayIsOn()'s current value into the OnOff cluster so a controller
-// subscriber sees it, regardless of what changed the relay (button press or
-// over-power trip). Called from AppUpdateOnOffCluster() (app_main.cpp).
+// subscriber sees it, regardless of what changed the relay.
 void matter_update_onoff(void);
 
 // Toggle the relay via the OnOff cluster and push the result. Called from
@@ -44,6 +42,11 @@ void matter_get_pairing_codes(char *qr_buf,  size_t qr_len,
 
 // Trigger a factory reset (clears fabric, reopens commissioning window).
 void matter_factory_reset(void);
+
+// Report a presence edge from the LD2410 radar bridge (ld2410_bridge.cpp) to
+// the OccupancySensing cluster. Safe to call before the occupancy endpoint
+// exists (no-ops); hops onto the Matter thread internally.
+void matter_report_occupancy(bool occupied);
 
 #ifdef __cplusplus
 }
