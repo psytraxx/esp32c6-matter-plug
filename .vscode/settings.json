@@ -1,5 +1,5 @@
 {
-  "idf.currentSetup": "/home/eric/.espressif/v6.0.3/esp-idf",
+  "idf.currentSetup": "/home/eric/.espressif/v6.1/esp-idf",
   "idf.openOcdConfigs": [
     "board/esp32c6-builtin.cfg"
   ],

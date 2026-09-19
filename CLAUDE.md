@@ -28,7 +28,7 @@ build:
 ## Build
 
 ```sh
-source ~/.espressif/v6.0.3/esp-idf/export.sh
+source ~/.espressif/v6.1/esp-idf/export.sh
 idf.py set-target esp32c6
 idf.py build
 idf.py flash monitor
