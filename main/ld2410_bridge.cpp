@@ -6,7 +6,8 @@
 #include "freertos/task.h"
 #include "driver/uart.h"
 
-extern "C" {
+extern "C"
+{
 #include "ld2410c.h"
 }
 #include "app_config.h"
@@ -15,17 +16,17 @@ extern "C" {
 static const char *TAG = "ld2410_bridge";
 
 static radar_presence_cb_t s_on_change = NULL;
-static ld2410c_handle_t    *s_dev      = NULL;
+static ld2410c_handle_t *s_dev = NULL;
 
 static esp_err_t radar_uart_init(void)
 {
     uart_config_t cfg = {};
-    cfg.baud_rate      = RADAR_UART_BAUD_RATE;
-    cfg.data_bits      = UART_DATA_8_BITS;
-    cfg.parity         = UART_PARITY_DISABLE;
-    cfg.stop_bits      = UART_STOP_BITS_1;
-    cfg.flow_ctrl      = UART_HW_FLOWCTRL_DISABLE;
-    cfg.source_clk     = UART_SCLK_DEFAULT;
+    cfg.baud_rate = RADAR_UART_BAUD_RATE;
+    cfg.data_bits = UART_DATA_8_BITS;
+    cfg.parity = UART_PARITY_DISABLE;
+    cfg.stop_bits = UART_STOP_BITS_1;
+    cfg.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+    cfg.source_clk = UART_SCLK_DEFAULT;
 
     esp_err_t err = uart_driver_install(RADAR_UART_PORT, 256, 0, 0, NULL, 0);
     if (err != ESP_OK)
@@ -55,14 +56,14 @@ static void radar_task(void *)
 {
     ESP_LOGI(TAG, "LD2410 radar ready (no-one window %lu s)", RADAR_NO_ONE_WINDOW_S);
 
-    bool    reported_occupied = false;
-    int64_t last_target_us    = 0;
+    bool reported_occupied = false;
+    int64_t last_target_us = 0;
     uint8_t frame_buf[128];
 
     for (;;)
     {
-        size_t    frame_len = 0;
-        esp_err_t err       = ld2410c_read_data_frame(s_dev, frame_buf, sizeof(frame_buf), &frame_len);
+        size_t frame_len = 0;
+        esp_err_t err = ld2410c_read_data_frame(s_dev, frame_buf, sizeof(frame_buf), &frame_len);
 
         if (err == ESP_OK)
         {
@@ -73,11 +74,12 @@ static void radar_task(void *)
         }
 
         const bool occupied = last_target_us != 0 &&
-                               (esp_timer_get_time() - last_target_us) < (int64_t)RADAR_NO_ONE_WINDOW_S * 1000000;
+                              (esp_timer_get_time() - last_target_us) < (int64_t)RADAR_NO_ONE_WINDOW_S * 1000000;
 
         if (occupied != reported_occupied)
         {
             reported_occupied = occupied;
+            ESP_LOGI(TAG, "presence: %s", occupied ? "occupied" : "clear");
             if (s_on_change)
                 s_on_change(occupied);
         }
@@ -101,6 +103,14 @@ esp_err_t radar_bridge_init(radar_presence_cb_t on_change)
         ESP_LOGE(TAG, "ld2410c_init failed");
         return ESP_ERR_NO_MEM;
     }
+
+    // CMD_GET_MAC (0x00A5) is not printed: this module's firmware explicitly
+    // rejects it (ACK status 1, not a timeout), so there's no MAC to read.
+    char fw[24] = {0};
+    if (ld2410c_get_firmware_string(s_dev, fw, sizeof(fw)) == ESP_OK)
+        ESP_LOGI(TAG, "LD2410 firmware: %s", fw);
+    else
+        ESP_LOGW(TAG, "failed to read LD2410 firmware version");
 
     // 3072 matches button_task's stack for a similarly small polling loop.
     if (xTaskCreate(radar_task, "radar", 3072, NULL, 5, NULL) != pdPASS)
